@@ -11,15 +11,22 @@
 
 
 
-@protocol DCTConnectionController <NSObject>
+@protocol DCTConnectionControllerDisplay <NSObject>
 @property (nonatomic, readonly) Class connectionViewControllerClass;
 @end
 
 
 
+typedef void (^DCTConnectionViewControllerFinishedBlock) ();
 
-@interface DCTConnectionViewController : UIViewController
+
+@interface DCTConnectionViewController : UIViewController <UIWebViewDelegate>
 
 @property (nonatomic, strong) DCTConnectionController *connectionController;
+
+@property (nonatomic, strong) IBOutlet UIWebView *webView;
+@property (nonatomic, strong) IBOutlet UINavigationBar *navigationBar;
+
+@property (nonatomic, copy) DCTConnectionViewControllerFinishedBlock completionBlock;
 
 @end

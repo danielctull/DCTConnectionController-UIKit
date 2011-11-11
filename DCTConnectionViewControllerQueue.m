@@ -7,18 +7,17 @@
 //
 
 #import "DCTConnectionViewControllerQueue.h"
+#import "DCTConnectionViewController.h"
+#import "DCTQueue.h"
 
-static DCTOAuth2ViewControllerQueue *sharedInstance = nil;
-
-@interface DCTOAuth2ViewControllerQueue ()
+@interface DCTConnectionViewControllerQueue ()
 - (void)dctInternal_displayConnectionControllerNotification:(NSNotification *)notification;
-- (void)dctInternal_dismissConnectionControllerNotification:(NSNotification *)notification;
 - (void)dctInternal_runNextConnectionViewController;
 @end
 
 @implementation DCTConnectionViewControllerQueue {
 	DCTConnectionViewController *currentConnectionViewController;
-	NSArray *queue;
+	DCTQueue *queue;
 }
 
 @synthesize window;
@@ -37,49 +36,43 @@ static DCTOAuth2ViewControllerQueue *sharedInstance = nil;
 	return self;
 }
 
-- (void)dctInternal_displayOAuth2ViewControllerNotification:(NSNotification *)notification {
+- (void)dctInternal_displayConnectionControllerNotification:(NSNotification *)notification {
 	
 	id o = [notification object];
 	
-	if (![o isKindOfClass:[DCTOAuth2AuthorizationConnectionController class]]) return;
+	if (![o isKindOfClass:[DCTConnectionController class]]) return;
 	
+	NSAssert([o conformsToProtocol:@protocol(DCTConnectionControllerDisplay)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", o);
+			
 	[queue enqueue:o];
-	[self dctInternal_runNextConnectionController];
+	[self dctInternal_runNextConnectionViewController];
 }
 
-- (void)dctInternal_dismissOAuth2ViewControllerNotification:(NSNotification *)notification {
-	
-	id o = [notification object];
-	
-	if (![o isKindOfClass:[DCTOAuth2AuthorizationConnectionController class]]) return;
-	
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:DCTOAuth2AuthorizationConnectionControllerNeedsDismissingNotification object:o];
-	[displayingViewController.parentViewController dismissModalViewControllerAnimated:YES];
-	
-}
-
-- (void)dctInternal_runNextConnectionController {
+- (void)dctInternal_runNextConnectionViewController {
 	
 	if (currentConnectionViewController) return;
 	
 	if ([queue count] == 0) return;
 	
-	DCTConnectionController *cc = [queue objectAtIndex:0];
+	DCTConnectionController<DCTConnectionControllerDisplay> *cc = [queue dequeue];
 	
-	NSAssert()
+	NSAssert([cc conformsToProtocol:@protocol(DCTConnectionControllerDisplay)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", cc);
 	
+	Class connectionViewControllerClass = [cc connectionViewControllerClass];
 	
-	if (![cc conformsToProtocol:@protocol()])
+	currentConnectionViewController = [[connectionViewControllerClass alloc] init];
+	currentConnectionViewController.modalPresentationStyle = UIModalPresentationFormSheet;
+	currentConnectionViewController.connectionController = cc;
 	
+	__weak DCTConnectionViewController *cvc = currentConnectionViewController;
+	__weak DCTConnectionViewControllerQueue *weakself = self;
 	
+	currentConnectionViewController.completionBlock = ^{
+		[cvc.parentViewController dismissModalViewControllerAnimated:YES];
+		[weakself dctInternal_runNextConnectionViewController];
+	};
 	
-	displayingViewController = [[DCTConnectionViewController alloc] init];
-	displayingViewController.modalPresentationStyle = UIModalPresentationFormSheet;
-	displayingViewController.ConnectionController = cc;
-	displayingViewController.delegate = self;
-	[self.window.rootViewController presentModalViewController:displayingViewController animated:YES];
-	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dctInternal_dismissOAuth2ViewControllerNotification:) name:DCTOAuth2AuthorizationConnectionControllerNeedsDismissingNotification object:cc];
+	[self.window.rootViewController presentModalViewController:currentConnectionViewController animated:YES];
 }
 
 @end

@@ -11,25 +11,26 @@
 @implementation DCTConnectionViewController
 
 @synthesize connectionController;
+@synthesize webView;
+@synthesize navigationBar;
+@synthesize completionBlock;
 
 #pragma mark - UIViewController
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	[webView loadRequest:self.connectionController.URLRequest];
-	navigationBar.topItem.title = self.title;
+	[self.webView loadRequest:self.connectionController.URLRequest];
+	self.navigationBar.topItem.title = self.title;
 }
 
 - (void)setTitle:(NSString *)title {
 	[super setTitle:title];
-	navigationBar.topItem.title = title;
+	self.navigationBar.topItem.title = title;
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
 	[super viewDidDisappear:animated];
 	
-	if ([self.delegate respondsToSelector:@selector(oauth2ViewControllerDidDisappear:)])
-		[self.delegate oauth2ViewControllerDidDisappear:self];
 }
 
 #pragma mark - UIWebViewDelegate
@@ -40,19 +41,23 @@
 		self.title = [wv stringByEvaluatingJavaScriptFromString:@"document.title"];
 }
 
+
 - (BOOL)webView:(UIWebView *)webView
 shouldStartLoadWithRequest:(NSURLRequest *)request
  navigationType:(UIWebViewNavigationType)navigationType {
-	
+	/*
 	NSString *requestString = [[request URL] absoluteString];
 	
-	if ([requestString hasPrefix:self.authorizationConnectionController.redirectURI]) {
-		self.authorizationConnectionController.returnedObject = request;
-		[self.authorizationConnectionController connectionDidFinishLoading];
+	if ([requestString hasPrefix:self.connectionController.redirectURI]) {
+		self.connectionController.returnedObject = request;
+		[self.connectionController connectionDidFinishLoading];
 		return NO;
-	}
+	}*/
 	
-	return YES;
+	if (self.completionBlock)
+		self.completionBlock();
+	
+	return NO;
 }
 
 @end
