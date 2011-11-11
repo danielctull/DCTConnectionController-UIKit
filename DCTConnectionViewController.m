@@ -7,6 +7,7 @@
 //
 
 #import "DCTConnectionViewController.h"
+#import "DCTConnectionControllerDisplay.h"
 
 @implementation DCTConnectionViewController
 
@@ -33,6 +34,12 @@
 	
 }
 
+#pragma mark - DCTConnectionControllerDisplay
+
+- (void)dismissConnectionControllerDisplay {
+	if (self.completionBlock) self.completionBlock();	
+}
+
 #pragma mark - UIWebViewDelegate
 
 - (void)webViewDidFinishLoad:(UIWebView *)wv {
@@ -45,19 +52,10 @@
 - (BOOL)webView:(UIWebView *)webView
 shouldStartLoadWithRequest:(NSURLRequest *)request
  navigationType:(UIWebViewNavigationType)navigationType {
-	/*
-	NSString *requestString = [[request URL] absoluteString];
 	
-	if ([requestString hasPrefix:self.connectionController.redirectURI]) {
-		self.connectionController.returnedObject = request;
-		[self.connectionController connectionDidFinishLoading];
-		return NO;
-	}*/
+	NSAssert([self.connectionController conformsToProtocol:@protocol(DCTDisplayableConnectionController)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", self.connectionController);
 	
-	if (self.completionBlock)
-		self.completionBlock();
-	
-	return NO;
+	return [self.connectionController connectionControllerDisplay:self shouldLoadURLRequest:request];
 }
 
 @end

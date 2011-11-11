@@ -8,21 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "DCTConnectionController.h"
-
-
-
-@protocol DCTConnectionControllerDisplay <NSObject>
-@property (nonatomic, readonly) Class connectionViewControllerClass;
-@end
-
-
+#import "DCTConnectionControllerDisplay.h"
 
 typedef void (^DCTConnectionViewControllerFinishedBlock) ();
 
 
-@interface DCTConnectionViewController : UIViewController <UIWebViewDelegate>
+@interface DCTConnectionViewController : UIViewController <UIWebViewDelegate, DCTConnectionControllerDisplay>
 
-@property (nonatomic, strong) DCTConnectionController *connectionController;
+@property (nonatomic, strong) DCTConnectionController<DCTDisplayableConnectionController> *connectionController;
 
 @property (nonatomic, strong) IBOutlet UIWebView *webView;
 @property (nonatomic, strong) IBOutlet UINavigationBar *navigationBar;

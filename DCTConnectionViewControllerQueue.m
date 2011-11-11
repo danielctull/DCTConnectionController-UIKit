@@ -9,6 +9,7 @@
 #import "DCTConnectionViewControllerQueue.h"
 #import "DCTConnectionViewController.h"
 #import "DCTQueue.h"
+#import "DCTConnectionControllerDisplay.h"
 
 @interface DCTConnectionViewControllerQueue ()
 - (void)dctInternal_displayConnectionControllerNotification:(NSNotification *)notification;
@@ -54,13 +55,13 @@
 	
 	if ([queue count] == 0) return;
 	
-	DCTConnectionController<DCTConnectionControllerDisplay> *cc = [queue dequeue];
+	DCTConnectionController<DCTDisplayableConnectionController> *cc = [queue dequeue];
 	
 	NSAssert([cc conformsToProtocol:@protocol(DCTConnectionControllerDisplay)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", cc);
 	
-	Class connectionViewControllerClass = [cc connectionViewControllerClass];
-	
-	currentConnectionViewController = [[connectionViewControllerClass alloc] init];
+	Class connectionControllerDisplayClass = [DCTConnectionViewController class];
+		
+	currentConnectionViewController = [[connectionControllerDisplayClass alloc] init];
 	currentConnectionViewController.modalPresentationStyle = UIModalPresentationFormSheet;
 	currentConnectionViewController.connectionController = cc;
 	
