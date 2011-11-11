@@ -6,7 +6,7 @@
 //  Copyright (c) 2011 Daniel Tull. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "DCTConnectionController+UIKit.h"
 #import "DCTConnectionController.h"
 #import "DCTConnectionControllerDisplay.h"
 

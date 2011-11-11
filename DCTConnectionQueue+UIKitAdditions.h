@@ -34,7 +34,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <UIKit/UIKit.h>
+#import "DCTConnectionController+UIKit.h"
 #import "DCTConnectionQueue.h"
 
 @interface DCTConnectionQueue (UIKitAdditions)

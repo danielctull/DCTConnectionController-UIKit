@@ -6,6 +6,7 @@
 //  Copyright (c) 2011 Daniel Tull. All rights reserved.
 //
 
+#import "DCTConnectionController+UIKit.h"
 
 /** A queue to handle the presenting of DCTConnectionViewController instances that allow the display
  of web-based connections. This is primarily aimed at handling OAuth-type operations.
