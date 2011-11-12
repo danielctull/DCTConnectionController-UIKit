@@ -28,7 +28,7 @@
 	if (!(self = [super init])) return nil;
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(dctInternal_displayOAuth2ViewControllerNotification:) 
+											 selector:@selector(dctInternal_displayConnectionControllerNotification:) 
 												 name:DCTConnectionControllerNeedsDisplayNotification
 											   object:nil];
 	
@@ -43,7 +43,7 @@
 	
 	if (![o isKindOfClass:[DCTConnectionController class]]) return;
 	
-	NSAssert([o conformsToProtocol:@protocol(DCTConnectionControllerDisplay)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", o);
+	NSAssert([o conformsToProtocol:@protocol(DCTDisplayableConnectionController)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", o);
 			
 	[queue enqueue:o];
 	[self dctInternal_runNextConnectionViewController];
@@ -57,7 +57,7 @@
 	
 	DCTConnectionController<DCTDisplayableConnectionController> *cc = [queue dequeue];
 	
-	NSAssert([cc conformsToProtocol:@protocol(DCTConnectionControllerDisplay)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", cc);
+	NSAssert([cc conformsToProtocol:@protocol(DCTDisplayableConnectionController)], @"Connection controller %@ should adhere to the DCTConnectionControllerDisplay protocol.", cc);
 	
 	Class connectionControllerDisplayClass = [DCTConnectionViewController class];
 		
@@ -65,15 +65,16 @@
 	currentConnectionViewController.modalPresentationStyle = UIModalPresentationFormSheet;
 	currentConnectionViewController.connectionController = cc;
 	
-	__weak DCTConnectionViewController *cvc = currentConnectionViewController;
 	__weak DCTConnectionViewControllerQueue *weakself = self;
 	
 	currentConnectionViewController.completionBlock = ^{
-		[cvc.parentViewController dismissModalViewControllerAnimated:YES];
+		[weakself.window.rootViewController dismissViewControllerAnimated:YES completion:nil];
 		[weakself dctInternal_runNextConnectionViewController];
 	};
 	
-	[self.window.rootViewController presentModalViewController:currentConnectionViewController animated:YES];
+	[self.window.rootViewController presentViewController:currentConnectionViewController
+												 animated:YES
+											   completion:nil];
 }
 
 @end
